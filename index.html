@@ -4,21 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你的名字 | 个人主页</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+    <title>迪 | DI's Digital Space</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100;300;400;500;700&family=Poppins:wght@200;400;600&display=swap"
         rel="stylesheet">
 
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
-        /* --- 核心样式 (仿 Apple 极简风格) --- */
+        /* --- 核心复位 & 变量 --- */
         :root {
             --bg-color: #000000;
+            --bg-sub: #111112;
             --text-color: #f5f5f7;
-            --text-secondary: #86868b;
+            --text-secondary: #a1a1a6;
             --accent-color: #2997ff;
-            /* Apple 蓝色 */
-            --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+            --purple-glow: rgba(106, 5, 255, 0.15);
+            --blue-glow: rgba(5, 150, 255, 0.15);
+            --ease: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         body,
@@ -26,177 +29,314 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'SF Pro Display', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow-x: hidden;
             scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
         }
 
         a {
             text-decoration: none;
             color: inherit;
-            transition: color 0.3s var(--ease-in-out);
+            transition: all 0.3s var(--ease);
         }
 
-        a:hover {
-            color: var(--accent-color);
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        /* --- 导航栏 --- */
+        /* --- 0. 顶部导航 (更精致) --- */
         .nav {
             position: fixed;
             top: 0;
             width: 100%;
-            height: 48px;
-            background: rgba(0, 0, 0, 0.8);
+            height: 52px;
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(20px);
-            /* 毛玻璃效果 */
             -webkit-backdrop-filter: blur(20px);
             z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: center;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .nav-content {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             display: flex;
             justify-content: space-between;
-            padding: 0 20px;
-            font-size: 12px;
+            align-items: center;
+            padding: 0 22px;
+            font-size: 13px;
             font-weight: 300;
-            letter-spacing: -0.01em;
+            letter-spacing: 0.02em;
         }
 
         .nav-logo {
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
         }
 
-        /* --- 主体 Section 通用样式 --- */
-        section {
-            position: relative;
-            width: 100%;
-            min-height: 100vh;
+        .nav-links a {
+            margin-left: 25px;
+            color: var(--text-secondary);
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        /* --- 1. Hero Section (核心升级：文字粒子+互动) --- */
+        #hero {
+            height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 80px 20px;
-            box-sizing: border-box;
-        }
-
-        /* --- Hero Section (首屏: 炫酷粒子背景) --- */
-        #hero {
-            padding-top: 48px;
-            /* 留出导航栏位置 */
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            position: relative;
             overflow: hidden;
+            background: radial-gradient(circle at center, #1a1a1d 0%, #000 100%);
         }
 
-        /* 粒子背景 Canvas */
-        #particle-canvas {
+        /* 鼠标跟随的微光 */
+        .cursor-glow {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.6;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--blue-glow) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.5s var(--ease);
         }
 
         .hero-content {
             z-index: 10;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .hero-title {
-            font-size: 80px;
+        /* 艺术字容器：用于 JavaScript 挂载粒子 */
+        #scene {
+            width: 600px;
+            height: 300px;
+            position: relative;
+        }
+
+        /* 兜底静态文字 (在JS加载前或加载失败时显示) */
+        .hero-title-static {
+            font-size: 120px;
             font-weight: 700;
-            letter-spacing: -0.015em;
-            background: linear-gradient(180deg, #fff 0%, #a1a1a1 100%);
+            letter-spacing: -0.05em;
+            margin: 0;
+            background: linear-gradient(135deg, #fff 30%, #a1a1a1 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin: 0;
-            line-height: 1.1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .hero-subtitle {
-            font-size: 28px;
-            font-weight: 400;
-            color: var(--text-color);
-            margin: 20px 0 40px 0;
-            letter-spacing: 0.015em;
+            font-size: 24px;
+            font-weight: 200;
+            color: var(--text-secondary);
+            margin: -20px 0 50px 0;
+            letter-spacing: 0.05em;
+            opacity: 0;
+            animation: fadeIn 1s var(--ease) 1s forwards;
         }
 
-        .cta-link {
-            font-size: 19px;
-            color: var(--accent-color);
-            font-weight: 400;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .cta-link::after {
-            content: " >";
+        /* 通用按钮 (仿 Apple) */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s var(--ease);
         }
 
-        /* --- About/Project Section (仿 Apple 产品展示卡片) --- */
+        .btn:hover {
+            background-color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* --- 通用 Section 样式 (增加背景微光) --- */
+        section {
+            padding: 120px 22px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 背景柔光 */
+        .glow-bg {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .section-title {
             font-size: 56px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            letter-spacing: -0.005em;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0 0 20px 0;
+            text-align: center;
+            z-index: 1;
         }
 
         .section-subtitle {
-            font-size: 24px;
+            font-size: 22px;
             color: var(--text-secondary);
-            max-width: 600px;
-            margin-bottom: 60px;
-            font-weight: 400;
+            max-width: 650px;
+            text-align: center;
+            margin: 0 0 80px 0;
+            font-weight: 300;
+            line-height: 1.5;
+            z-index: 1;
         }
 
-        .grid-container {
+        /* --- 2. Skills Section (新增强调：圆形进度条) --- */
+        #skills {
+            background-color: var(--bg-sub);
+        }
+
+        .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 40px;
+            width: 100%;
+            max-width: 900px;
+            z-index: 1;
+        }
+
+        .skill-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* SVG 圆形进度条 */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring__circle {
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            /* 2*pi*r, r=50 */
+            transition: stroke-dashoffset 1.5s var(--ease);
+            stroke: var(--accent-color);
+        }
+
+        .skill-icon-box {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .skill-icon-box span {
+            position: absolute;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .skill-name {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #fff;
+        }
+
+        /* --- 3. Projects Section (保持极简，增强 Hover) --- */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
             width: 100%;
             max-width: 1100px;
+            z-index: 1;
         }
 
         .card {
-            background: #161617;
-            border-radius: 18px;
+            background: rgba(22, 22, 23, 0.6);
+            border-radius: 20px;
             padding: 40px;
-            transition: transform 0.3s var(--ease-in-out), box-shadow 0.3s var(--ease-in-out);
-            position: relative;
-            overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            text-align: left;
+            position: relative;
+            transition: all 0.4s var(--ease);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            border-color: rgba(41, 151, 255, 0.3);
+            transform: translateY(-5px);
+            border-color: rgba(41, 151, 255, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            background: rgba(22, 22, 23, 1);
         }
 
-        .card-category {
+        .card::after {
+            /* Hover时的底部渐变线 */
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-color), #6a05ff);
+            transform: scaleX(0);
+            transition: transform 0.4s var(--ease);
+        }
+
+        .card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .card-cat {
             font-size: 12px;
             color: var(--accent-color);
             font-weight: 500;
             text-transform: uppercase;
-            margin-bottom: 10px;
-            display: block;
+            margin-bottom: 8px;
         }
 
         .card-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 600;
             margin: 0 0 15px 0;
             color: #fff;
@@ -205,228 +345,390 @@
         .card-desc {
             font-size: 16px;
             color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 20px;
+            line-height: 1.6;
+            margin-bottom: 30px;
             flex-grow: 1;
+            font-weight: 300;
         }
 
-        /* 简单的 Github 图标 */
-        .icon-github {
-            width: 20px;
-            height: 20px;
-            fill: var(--text-secondary);
-            transition: fill 0.3s;
+        /* --- 4. Timeline Section (新增：经历时间轴) --- */
+        #timeline {
+            background-color: var(--bg-sub);
         }
 
-        .card:hover .icon-github {
-            fill: #fff;
+        .timeline-container {
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-container::after {
+            /* 中间竖线 */
+            content: '';
+            position: absolute;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            width: 50%;
+            padding: 20px 40px;
+            box-sizing: border-box;
+            position: relative;
+            opacity: 0;
+        }
+
+        /* AOS 结合的动画需在此处处理 */
+        .timeline-item.aos-animate {
+            opacity: 1;
+        }
+
+        .timeline-item.left {
+            left: 0;
+            text-align: right;
+        }
+
+        .timeline-item.right {
+            left: 50%;
+            text-align: left;
+        }
+
+        .timeline-item::after {
+            /* 时间轴圆点 */
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--bg-color);
+            border: 2px solid var(--accent-color);
+            border-radius: 50%;
+            top: 25px;
+            z-index: 10;
+        }
+
+        .timeline-item.left::after {
+            right: -8px;
+        }
+
+        .timeline-item.right::after {
+            left: -8px;
+        }
+
+        .tl-date {
+            font-size: 14px;
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .tl-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #fff;
+            margin: 0 0 8px 0;
+        }
+
+        .tl-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            margin: 0;
+            line-height: 1.5;
         }
 
         /* --- Footer --- */
         footer {
-            background: #161617;
-            padding: 50px 20px;
+            background: #000;
+            padding: 60px 22px;
             text-align: center;
             font-size: 12px;
             color: var(--text-secondary);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* --- 响应式适配 --- */
+        /* --- 响应式 --- */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 48px;
+            #scene {
+                width: 100%;
+                height: 200px;
             }
 
-            .hero-subtitle {
-                font-size: 20px;
+            .hero-title-static {
+                font-size: 70px;
             }
 
             .section-title {
                 font-size: 36px;
             }
 
-            .nav-content {
-                justify-content: center;
+            .section-subtitle {
+                font-size: 18px;
             }
 
             .nav-links {
                 display: none;
             }
 
-            /* 手机端隐藏部分导航 */
+            .timeline-container::after {
+                left: 30px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 20px;
+                text-align: left !important;
+            }
+
+            .timeline-item.right {
+                left: 0;
+            }
+
+            .timeline-item::after {
+                left: 22px !important;
+                top: 25px;
+            }
         }
     </style>
 </head>
 
 <body>
 
+    <div class="cursor-glow" id="cursor-glow"></div>
+
     <nav class="nav">
         <div class="nav-content">
-            <a href="#" class="nav-logo"> DevPort</a>
+            <a href="#" class="nav-logo">DI.</a>
             <div class="nav-links">
-                <a href="#about" style="margin-right: 20px;">关于</a>
-                <a href="#projects" style="margin-right: 20px;">项目</a>
-                <a href="https://github.com/你的用户名" target="_blank">GitHub</a>
+                <a href="#skills">技能</a>
+                <a href="#projects">项目</a>
+                <a href="#timeline">经历</a>
             </div>
         </div>
     </nav>
 
     <section id="hero">
-        <canvas id="particle-canvas"></canvas>
-
-        <div class="hero-content" data-aos="fade-up" data-aos-duration="1500">
-            <p class="card-category" style="font-size: 16px;">Hello, World. 我是</p>
-            <h1 class="hero-title">你的名字</h1>
-            <p class="hero-subtitle">开发者 / 设计师 / 终身学习者</p> <a href="#projects" class="cta-link">查看我的作品</a>
+        <div class="hero-content">
+            <div id="scene">
+                <h1 class="hero-title-static">迪</h1>
+            </div>
+            <p class="hero-subtitle">创造代码，设计未来。</p> <a href="#projects" class="btn">探索我的作品</a>
         </div>
     </section>
 
-    <section id="about" style="background-color: #000;">
-        <h2 class="section-title" data-aos="fade-up">代码，连接无限可能。</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
-            专注于构建优雅、高效且用户友好的数字体验。热衷于探索前沿技术，将创意转化为现实。
-        </p>
+    <section id="skills">
+        <div class="glow-bg"
+            style="width: 500px; height: 500px; background: var(--purple-glow); top: -100px; right: -100px;"></div>
+
+        <h2 class="section-title" data-aos="fade-up">硬核实力</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">核心工具栈与熟练度</p>
+
+        <div class="skills-grid">
+            <div class="skill-item" data-aos="zoom-in" data-aos-delay="200">
+                <div class="skill-icon-box">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="50" cx="60"
+                            cy="60" />
+                    </svg>
+                    <span style="color: #61DAFB;">React</span>
+                </div>
+                <p class="skill-name">Web 架构 / 精通</p>
+            </div>
+            <div class="skill-item" data-aos="zoom-in" data-aos-delay="300">
+                <div class="skill-icon-box">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring__circle" stroke-width="4" stroke="#3178C6" fill="transparent"
+                            r="50" cx="60" cy="60" style="stroke-dashoffset: 60;" />
+                    </svg>
+                    <span style="color: #3178C6;">TS</span>
+                </div>
+                <p class="skill-name">TypeScript / 高级</p>
+            </div>
+            <div class="skill-item" data-aos="zoom-in" data-aos-delay="400">
+                <div class="skill-icon-box">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring__circle" stroke-width="4" stroke="#43853d" fill="transparent"
+                            r="50" cx="60" cy="60" style="stroke-dashoffset: 80;" />
+                    </svg>
+                    <span style="color: #fff; font-size: 18px">Node.js</span>
+                </div>
+                <p class="skill-name">后端服务 / 熟练</p>
+            </div>
+            <div class="skill-item" data-aos="zoom-in" data-aos-delay="500">
+                <div class="skill-icon-box">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring__circle" stroke-width="4" stroke="#F05032" fill="transparent"
+                            r="50" cx="60" cy="60" style="stroke-dashoffset: 40;" />
+                    </svg>
+                    <span style="color: #F05032;">Git</span>
+                </div>
+                <p class="skill-name">版本控制 / 精通</p>
+            </div>
+        </div>
     </section>
 
-    <section id="projects" style="background-color: #000;">
-        <h2 class="section-title" data-aos="fade-up">精选项目</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">Featured Work</p>
+    <section id="projects">
+        <div class="glow-bg"
+            style="width: 600px; height: 600px; background: var(--blue-glow); bottom: -100px; left: -200px;"></div>
 
-        <div class="grid-container">
-            <div class="card" data-aos="fade-up">
-                <div>
-                    <span class="card-category">Web Application</span>
-                    <h3 class="card-title">智感 UI 框架</h3>
-                    <p class="card-desc">一个基于 React 的极简主义组件库，追求像素级完美的视觉体验与流畅的交互动画。</p>
-                </div>
-                <a href="https://github.com/你的用户名/项目名" target="_blank">
-                    <svg class="icon-github" viewBox="0 0 16 16">
-                        <path
-                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
-                        </path>
-                    </svg>
-                    Source Code
-                </a>
-            </div>
+        <h2 class="section-title" data-aos="fade-up">实践结晶</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">将想法转化为代码的记录</p>
 
+        <div class="project-grid">
             <div class="card" data-aos="fade-up" data-aos-delay="200">
                 <div>
-                    <span class="card-category">Open Source Tool</span>
-                    <h3 class="card-title">GitHub 状态生成器</h3>
-                    <p class="card-desc">自动生成炫酷的 GitHub Profile README 统计图表的命令行工具。</p>
+                    <span class="card-cat">Product Design / AI</span>
+                    <h3 class="card-title">MindSprout 思绪火花</h3>
+                    <p class="card-desc">基于 Next.js 和 OpenAI 的智能笔记助手，不仅能记录，更能自动化整理、联想你的知识碎片。</p>
                 </div>
-                <a href="#" target="_blank">
-                    <svg class="icon-github" viewBox="0 0 16 16">
-                        <path
-                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
-                        </path>
-                    </svg>
-                    Source Code
-                </a>
+                <a href="#" class="cta-link" style="color: var(--accent-color);">Live Demo →</a>
             </div>
 
+            <div class="card" data-aos="fade-up" data-aos-delay="300">
+                <div>
+                    <span class="card-cat">Dev Tools</span>
+                    <h3 class="card-title">PixelPerfect CLI</h3>
+                    <p class="card-desc">一个命令行工具，用于自动检查 React 组件实现与设计稿的像素级差异，提升 UI 还原度。</p>
+                </div>
+                <a href="#" class="cta-link" style="color: var(--accent-color);">View Repo →</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="timeline">
+        <h2 class="section-title" data-aos="fade-up">足迹</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">那些难忘的时间节点</p>
+
+        <div class="timeline-container">
+            <div class="timeline-item left" data-aos="fade-right">
+                <span class="tl-date">2023.09 - 至今</span>
+                <h4 class="tl-title">高级前端工程师 @ 某科技公司</h4>
+                <p class="tl-desc">负责核心产品核心模块的开发与性能优化，推动 TypeScript 化及单元测试落地。</p>
+            </div>
+            <div class="timeline-item right" data-aos="fade-left">
+                <span class="tl-date">2021.06</span>
+                <h4 class="tl-title">项目启动：开源 UI 库</h4>
+                <p class="tl-desc">在 GitHub 发布了第一个个人开源项目，并在 ProductHunt 获得当日 Star 前十。</p>
+            </div>
+            <div class="timeline-item left" data-aos="fade-right">
+                <span class="tl-date">2020.07</span>
+                <h4 class="tl-title">大学毕业</h4>
+                <p class="tl-desc">获得计算机科学与技术学士学位，正式开启职业生涯。</p>
+            </div>
         </div>
     </section>
 
     <footer>
-        <p>&copy; 2023 你的名字. Hosted on GitHub Pages.</p>
-        <p style="font-weight: 300; margin-top: 10px;">Keep Coding, Keep Creating.</p>
+        <p>&copy; 2023 DI. Stay Hungry, Stay Foolish.</p>
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // 1. 初始化 AOS 滚动动画
-        AOS.init({
-            duration: 1000, // 动画持续时间 (毫秒)
-            easing: 'cubic-bezier(0.65, 0, 0.35, 1)', // 苹果风格缓动函数
-            once: true, // 动画只在第一次滚动到时触发
-            offset: 100, // 触发动画的距离偏移
+        // 1. 初始化 AOS
+        AOS.init({ duration: 1200, easing: 'ease-out-cubic', once: true, offset: 100 });
+
+        // 2. 鼠标跟随微光
+        const glow = document.getElementById('cursor-glow');
+        window.addEventListener('mousemove', e => {
+            glow.style.opacity = '1';
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + window.scrollY + 'px';
         });
+        window.addEventListener('mouseout', () => glow.style.opacity = '0');
 
-        // 2. Hero Section 粒子背景动画脚本
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        const particleCount = 60; // 粒子数量
+        // 3. Three.js 粒子文字 "迪" (核心炫酷代码)
+        // 注意：这部分比较高级，如果加载慢，兜底的CSS静态文字也会显示。
+        (function () {
+            const container = document.getElementById('scene');
+            if (!container) return;
 
-        // 设置 Canvas 尺寸为窗口大小
-        function setCanvasSize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        setCanvasSize();
-        window.addEventListener('resize', setCanvasSize);
+            // 移除静态文字
+            const staticTitle = container.querySelector('.hero-title-static');
 
-        // 粒子类
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.5 + 0.5; // 粒子大小
-                this.speedX = Math.random() * 0.5 - 0.25; // X轴速度
-                this.speedY = Math.random() * 0.5 - 0.25; // Y轴速度
-                this.opacity = Math.random() * 0.5 + 0.1;
-            }
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 1000);
+            camera.position.z = 100;
 
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
 
-                // 边界检测：飘出屏幕后从另一侧回来
-                if (this.x > canvas.width) this.x = 0;
-                else if (this.x < 0) this.x = canvas.width;
-                if (this.y > canvas.height) this.y = 0;
-                else if (this.y < 0) this.y = canvas.height;
-            }
+            // 用 Canvas 绘制 "迪" 字作为纹理源
+            const textCanvas = document.createElement('canvas');
+            const tCtx = textCanvas.getContext('2d');
+            textCanvas.width = 300; textCanvas.height = 300;
+            tCtx.fillStyle = 'white';
+            tCtx.font = '700 200px "Noto Sans SC"';
+            tCtx.textAlign = 'center'; tCtx.textBaseline = 'middle';
+            tCtx.fillText('迪', 150, 150); // 修改这里: 这里决定了粒子组成的字
 
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
+            // 获取文字像素数据，转化为粒子坐标
+            const imgData = tCtx.getImageData(0, 0, 300, 300).data;
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            const colorA = new THREE.Color(0xffffff); // 纯白
+            const colorB = new THREE.Color(0x2997ff); // Apple蓝
 
-        // 初始化粒子阵列
-        function initParticles() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
+            for (let y = 0; y < 300; y += 3) { // 步长决定粒子密度
+                for (let x = 0; x < 300; x += 3) {
+                    const alpha = imgData[((y * 300) + x) * 4 + 3];
+                    if (alpha > 128) {
+                        positions.push(x - 150, (y - 150) * -1, 0); // 居中坐标
 
-        // 动画循环
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
-
-            for (let i = 0; i < particles.length; i++) {
-                particles[i].update();
-                particles[i].draw();
-
-                // 可选：绘制粒子间的连线 (增加炫酷感，但稍微消耗性能)
-                /*
-                for (let j = i; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    if (distance < 100) {
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 - distance/1000})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.stroke();
+                        // 混合颜色，制造渐变感
+                        const mixedColor = colorA.clone().lerp(colorB, x / 300);
+                        colors.push(mixedColor.r, mixedColor.g, mixedColor.b);
                     }
                 }
-                */
             }
-            requestAnimationFrame(animate);
-        }
 
-        initParticles();
-        animate();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({ size: 1.5, vertexColors: true, transparent: true, opacity: 0.8 });
+            const points = new THREE.Points(geometry, material);
+            scene.add(points);
+
+            // 成功加载粒子后，移除静态文字
+            if (staticTitle) staticTitle.remove();
+
+            // 鼠标交互变量
+            let mouseX = 0, mouseY = 0;
+            window.addEventListener('mousemove', (e) => {
+                // 标准化鼠标坐标 (-1 to 1)
+                const rect = container.getBoundingClientRect();
+                mouseX = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
+                mouseY = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // 粒子随鼠标轻微旋转交互
+                points.rotation.y += (mouseX * 0.1 - points.rotation.y) * 0.05;
+                points.rotation.x += (mouseY * 0.1 - points.rotation.x) * 0.05;
+
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            // 响应式窗口
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        })();
     </script>
 </body>
 
