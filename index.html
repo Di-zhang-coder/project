@@ -1,171 +1,433 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的个人空间</title>
+    <title>你的名字 | 个人主页</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <style>
-        * {
+        /* --- 核心样式 (仿 Apple 极简风格) --- */
+        :root {
+            --bg-color: #000000;
+            --text-color: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent-color: #2997ff;
+            /* Apple 蓝色 */
+            --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        body,
+        html {
             margin: 0;
             padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'SF Pro Display', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s var(--ease-in-out);
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
+        /* --- 导航栏 --- */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 48px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            /* 毛玻璃效果 */
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-content {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: -0.01em;
+        }
+
+        .nav-logo {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        /* --- 主体 Section 通用样式 --- */
+        section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 80px 20px;
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        /* --- Hero Section (首屏: 炫酷粒子背景) --- */
+        #hero {
+            padding-top: 48px;
+            /* 留出导航栏位置 */
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            overflow: hidden;
         }
 
-        .container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 50px 40px;
-            max-width: 600px;
+        /* 粒子背景 Canvas */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            backdrop-filter: blur(10px);
+            height: 100%;
+            opacity: 0.6;
         }
 
-        .avatar {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            margin: 0 auto 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            color: white;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        .hero-content {
+            z-index: 10;
         }
 
-        h1 {
-            color: #333;
-            font-size: 2.2em;
-            margin-bottom: 10px;
+        .hero-title {
+            font-size: 80px;
             font-weight: 700;
+            letter-spacing: -0.015em;
+            background: linear-gradient(180deg, #fff 0%, #a1a1a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            line-height: 1.1;
         }
 
-        .subtitle {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
+        .hero-subtitle {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--text-color);
+            margin: 20px 0 40px 0;
+            letter-spacing: 0.015em;
         }
 
-        .info-box {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 25px;
-            margin: 25px 0;
+        .cta-link {
+            font-size: 19px;
+            color: var(--accent-color);
+            font-weight: 400;
+        }
+
+        .cta-link::after {
+            content: " >";
+        }
+
+        /* --- About/Project Section (仿 Apple 产品展示卡片) --- */
+        .section-title {
+            font-size: 56px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.005em;
+        }
+
+        .section-subtitle {
+            font-size: 24px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .card {
+            background: #161617;
+            border-radius: 18px;
+            padding: 40px;
+            transition: transform 0.3s var(--ease-in-out), box-shadow 0.3s var(--ease-in-out);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: left;
-        }
-
-        .info-box h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-        }
-
-        .info-box p {
-            color: #555;
-            line-height: 1.8;
-            margin-bottom: 8px;
-        }
-
-        .info-box p:last-child {
-            margin-bottom: 0;
-        }
-
-        .links {
             display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .link-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-color: rgba(41, 151, 255, 0.3);
+        }
+
+        .card-category {
+            font-size: 12px;
+            color: var(--accent-color);
             font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
         }
 
-        .link-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        .card-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 15px 0;
+            color: #fff;
         }
 
-        .footer {
-            margin-top: 30px;
-            color: #999;
-            font-size: 0.9em;
+        .card-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            flex-grow: 1;
         }
 
-        .badge {
-            display: inline-block;
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            margin: 5px;
+        /* 简单的 Github 图标 */
+        .icon-github {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-secondary);
+            transition: fill 0.3s;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 35px 25px;
+        .card:hover .icon-github {
+            fill: #fff;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #161617;
+            padding: 50px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* --- 响应式适配 --- */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 48px;
             }
-            h1 {
-                font-size: 1.8em;
+
+            .hero-subtitle {
+                font-size: 20px;
             }
+
+            .section-title {
+                font-size: 36px;
+            }
+
+            .nav-content {
+                justify-content: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            /* 手机端隐藏部分导航 */
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="avatar">👋</div>
-        <h1>欢迎来到我的空间</h1>
-        <p class="subtitle">部署于 GitHub Pages</p>
 
-        <div class="info-box">
-            <h3>📋 站点信息</h3>
-            <p><strong>项目：</strong>project</p>
-            <p><strong>状态：</strong><span style="color: #4caf50;">● 运行正常</span></p>
-            <p><strong>平台：</strong>GitHub Pages</p>
-            <p><strong>时间：</strong>2026年4月10日</p>
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#" class="nav-logo"> DevPort</a>
+            <div class="nav-links">
+                <a href="#about" style="margin-right: 20px;">关于</a>
+                <a href="#projects" style="margin-right: 20px;">项目</a>
+                <a href="https://github.com/你的用户名" target="_blank">GitHub</a>
+            </div>
         </div>
+    </nav>
 
-        <div style="margin: 20px 0;">
-            <span class="badge">HTML5</span>
-            <span class="badge">CSS3</span>
-            <span class="badge">GitHub</span>
-            <span class="badge">静态站点</span>
+    <section id="hero">
+        <canvas id="particle-canvas"></canvas>
+
+        <div class="hero-content" data-aos="fade-up" data-aos-duration="1500">
+            <p class="card-category" style="font-size: 16px;">Hello, World. 我是</p>
+            <h1 class="hero-title">你的名字</h1>
+            <p class="hero-subtitle">开发者 / 设计师 / 终身学习者</p> <a href="#projects" class="cta-link">查看我的作品</a>
         </div>
+    </section>
 
-        <div class="links">
-            <a href="https://github.com" class="link-btn" target="_blank">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                GitHub
-            </a>
-            <a href="#" class="link-btn">📧 联系我</a>
+    <section id="about" style="background-color: #000;">
+        <h2 class="section-title" data-aos="fade-up">代码，连接无限可能。</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">
+            专注于构建优雅、高效且用户友好的数字体验。热衷于探索前沿技术，将创意转化为现实。
+        </p>
+    </section>
+
+    <section id="projects" style="background-color: #000;">
+        <h2 class="section-title" data-aos="fade-up">精选项目</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="200">Featured Work</p>
+
+        <div class="grid-container">
+            <div class="card" data-aos="fade-up">
+                <div>
+                    <span class="card-category">Web Application</span>
+                    <h3 class="card-title">智感 UI 框架</h3>
+                    <p class="card-desc">一个基于 React 的极简主义组件库，追求像素级完美的视觉体验与流畅的交互动画。</p>
+                </div>
+                <a href="https://github.com/你的用户名/项目名" target="_blank">
+                    <svg class="icon-github" viewBox="0 0 16 16">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                        </path>
+                    </svg>
+                    Source Code
+                </a>
+            </div>
+
+            <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <div>
+                    <span class="card-category">Open Source Tool</span>
+                    <h3 class="card-title">GitHub 状态生成器</h3>
+                    <p class="card-desc">自动生成炫酷的 GitHub Profile README 统计图表的命令行工具。</p>
+                </div>
+                <a href="#" target="_blank">
+                    <svg class="icon-github" viewBox="0 0 16 16">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z">
+                        </path>
+                    </svg>
+                    Source Code
+                </a>
+            </div>
+
         </div>
+    </section>
 
-        <p class="footer">Made with ❤️ on GitHub Pages</p>
-    </div>
+    <footer>
+        <p>&copy; 2023 你的名字. Hosted on GitHub Pages.</p>
+        <p style="font-weight: 300; margin-top: 10px;">Keep Coding, Keep Creating.</p>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // 1. 初始化 AOS 滚动动画
+        AOS.init({
+            duration: 1000, // 动画持续时间 (毫秒)
+            easing: 'cubic-bezier(0.65, 0, 0.35, 1)', // 苹果风格缓动函数
+            once: true, // 动画只在第一次滚动到时触发
+            offset: 100, // 触发动画的距离偏移
+        });
+
+        // 2. Hero Section 粒子背景动画脚本
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const particleCount = 60; // 粒子数量
+
+        // 设置 Canvas 尺寸为窗口大小
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5; // 粒子大小
+                this.speedX = Math.random() * 0.5 - 0.25; // X轴速度
+                this.speedY = Math.random() * 0.5 - 0.25; // Y轴速度
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界检测：飘出屏幕后从另一侧回来
+                if (this.x > canvas.width) this.x = 0;
+                else if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                else if (this.y < 0) this.y = canvas.height;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 初始化粒子阵列
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                // 可选：绘制粒子间的连线 (增加炫酷感，但稍微消耗性能)
+                /*
+                for (let j = i; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.2 - distance/1000})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+                */
+            }
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+    </script>
 </body>
+
 </html>
