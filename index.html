@@ -1,735 +1,241 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>迪 | DI's Digital Space</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100;300;400;500;700&family=Poppins:wght@200;400;600&display=swap"
-        rel="stylesheet">
-
+    <title>DI | 迪 - 数字工匠</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;700;900&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
     <style>
-        /* --- 核心复位 & 变量 --- */
         :root {
-            --bg-color: #000000;
-            --bg-sub: #111112;
-            --text-color: #f5f5f7;
-            --text-secondary: #a1a1a6;
-            --accent-color: #2997ff;
-            --purple-glow: rgba(106, 5, 255, 0.15);
-            --blue-glow: rgba(5, 150, 255, 0.15);
-            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+            --apple-bg: #000000;
+            --apple-glass: rgba(255, 255, 255, 0.04);
+            --apple-border: rgba(255, 255, 255, 0.1);
+            --apple-blue: #0071e3;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        body,
-        html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            font-family: 'Poppins', 'Noto Sans SC', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
+        body, html {
+            margin: 0; padding: 0; background-color: var(--apple-bg); color: #fff;
+            font-family: var(--font-main); overflow-x: hidden; -webkit-font-smoothing: antialiased;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s var(--ease);
+        /* --- 极简网格底纹 --- */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--apple-border) 1px, transparent 1px), 
+                              linear-gradient(90deg, var(--apple-border) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -2; opacity: 0.2;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        /* --- 动态流体背景 --- */
+        #canvas-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; filter: blur(80px); opacity: 0.4;
         }
 
-        /* --- 0. 顶部导航 (更精致) --- */
-        .nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            height: 52px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            justify-content: center;
+        /* --- 导航栏：极简浮动 --- */
+        nav {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--apple-glass); backdrop-filter: blur(20px);
+            padding: 10px 30px; border-radius: 40px; border: 1px solid var(--apple-border);
+            z-index: 1000; display: flex; gap: 30px; font-size: 13px; letter-spacing: 1px;
+        }
+        nav a { color: #86868b; text-decoration: none; transition: 0.3s; font-weight: 300; }
+        nav a:hover { color: #fff; }
+
+        /* --- 核心布局 --- */
+        section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 20px; box-sizing: border-box; }
+
+        /* --- Hero Section: 震撼大字 --- */
+        .hero-title {
+            font-size: clamp(80px, 15vw, 180px); font-weight: 900; line-height: 0.9;
+            letter-spacing: -0.06em; margin: 0; text-align: center;
+            background: linear-gradient(180deg, #fff 40%, rgba(255,255,255,0.2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-tagline {
+            font-size: 24px; font-weight: 200; color: #86868b; margin-top: 40px;
+            letter-spacing: 0.2em; text-transform: uppercase;
         }
 
-        .nav-content {
-            width: 100%;
-            max-width: 1100px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 22px;
-            font-size: 13px;
-            font-weight: 300;
-            letter-spacing: 0.02em;
+        /* --- 内容卡片：质感升级 --- */
+        .content-card {
+            background: var(--apple-glass); border: 1px solid var(--apple-border);
+            border-radius: 32px; padding: 60px; max-width: 1000px; width: 100%;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .content-card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-10px); }
 
-        .nav-logo {
-            font-weight: 600;
-            font-size: 16px;
-            font-family: 'Poppins', sans-serif;
+        .tag { color: var(--apple-blue); font-size: 14px; font-weight: 600; text-transform: uppercase; margin-bottom: 20px; display: block; }
+        h2 { font-size: 48px; font-weight: 700; margin: 0 0 30px 0; letter-spacing: -0.02em; }
+        p { font-size: 20px; line-height: 1.6; color: #a1a1a6; font-weight: 300; }
+
+        /* --- 深度内容：模块化设计 --- */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 50px; width: 100%; max-width: 1100px; }
+        .mini-card {
+            background: var(--apple-glass); border: 1px solid var(--apple-border);
+            padding: 30px; border-radius: 24px; text-align: left;
         }
+        .mini-card h4 { font-size: 20px; margin: 0 0 10px 0; color: #fff; }
+        .mini-card p { font-size: 14px; margin: 0; }
 
-        .nav-links a {
-            margin-left: 25px;
-            color: var(--text-secondary);
-        }
+        /* --- 动画：文字拉丝效果 --- */
+        .reveal-text { overflow: hidden; }
+        .reveal-text span { display: block; transform: translateY(100%); transition: 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .aos-animate .reveal-text span { transform: translateY(0); }
 
-        .nav-links a:hover {
-            color: #fff;
-        }
+        /* --- 结尾 --- */
+        .contact-text { font-size: clamp(30px, 5vw, 60px); font-weight: 700; text-align: center; margin-bottom: 50px; }
+        .email-btn { font-size: 20px; border-bottom: 2px solid #fff; padding-bottom: 10px; cursor: pointer; }
 
-        /* --- 1. Hero Section (核心升级：文字粒子+互动) --- */
-        #hero {
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            background: radial-gradient(circle at center, #1a1a1d 0%, #000 100%);
-        }
-
-        /* 鼠标跟随的微光 */
-        .cursor-glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, var(--blue-glow) 0%, rgba(0, 0, 0, 0) 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%);
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.5s var(--ease);
-        }
-
-        .hero-content {
-            z-index: 10;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 艺术字容器：用于 JavaScript 挂载粒子 */
-        #scene {
-            width: 600px;
-            height: 300px;
-            position: relative;
-        }
-
-        /* 兜底静态文字 (在JS加载前或加载失败时显示) */
-        .hero-title-static {
-            font-size: 120px;
-            font-weight: 700;
-            letter-spacing: -0.05em;
-            margin: 0;
-            background: linear-gradient(135deg, #fff 30%, #a1a1a1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .hero-subtitle {
-            font-size: 24px;
-            font-weight: 200;
-            color: var(--text-secondary);
-            margin: -20px 0 50px 0;
-            letter-spacing: 0.05em;
-            opacity: 0;
-            animation: fadeIn 1s var(--ease) 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 通用按钮 (仿 Apple) */
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: var(--text-color);
-            color: var(--bg-color);
-            border-radius: 50px;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s var(--ease);
-        }
-
-        .btn:hover {
-            background-color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* --- 通用 Section 样式 (增加背景微光) --- */
-        section {
-            padding: 120px 22px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 背景柔光 */
-        .glow-bg {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .section-title {
-            font-size: 56px;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            margin: 0 0 20px 0;
-            text-align: center;
-            z-index: 1;
-        }
-
-        .section-subtitle {
-            font-size: 22px;
-            color: var(--text-secondary);
-            max-width: 650px;
-            text-align: center;
-            margin: 0 0 80px 0;
-            font-weight: 300;
-            line-height: 1.5;
-            z-index: 1;
-        }
-
-        /* --- 2. Skills Section (新增强调：圆形进度条) --- */
-        #skills {
-            background-color: var(--bg-sub);
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 40px;
-            width: 100%;
-            max-width: 900px;
-            z-index: 1;
-        }
-
-        .skill-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        /* SVG 圆形进度条 */
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring__circle {
-            stroke-dasharray: 314;
-            stroke-dashoffset: 314;
-            /* 2*pi*r, r=50 */
-            transition: stroke-dashoffset 1.5s var(--ease);
-            stroke: var(--accent-color);
-        }
-
-        .skill-icon-box {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .skill-icon-box span {
-            position: absolute;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .skill-name {
-            margin-top: 15px;
-            font-size: 16px;
-            font-weight: 400;
-            color: #fff;
-        }
-
-        /* --- 3. Projects Section (保持极简，增强 Hover) --- */
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            width: 100%;
-            max-width: 1100px;
-            z-index: 1;
-        }
-
-        .card {
-            background: rgba(22, 22, 23, 0.6);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative;
-            transition: all 0.4s var(--ease);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(41, 151, 255, 0.4);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            background: rgba(22, 22, 23, 1);
-        }
-
-        .card::after {
-            /* Hover时的底部渐变线 */
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent-color), #6a05ff);
-            transform: scaleX(0);
-            transition: transform 0.4s var(--ease);
-        }
-
-        .card:hover::after {
-            transform: scaleX(1);
-        }
-
-        .card-cat {
-            font-size: 12px;
-            color: var(--accent-color);
-            font-weight: 500;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-
-        .card-title {
-            font-size: 26px;
-            font-weight: 600;
-            margin: 0 0 15px 0;
-            color: #fff;
-        }
-
-        .card-desc {
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-            margin-bottom: 30px;
-            flex-grow: 1;
-            font-weight: 300;
-        }
-
-        /* --- 4. Timeline Section (新增：经历时间轴) --- */
-        #timeline {
-            background-color: var(--bg-sub);
-        }
-
-        .timeline-container {
-            width: 100%;
-            max-width: 800px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .timeline-container::after {
-            /* 中间竖线 */
-            content: '';
-            position: absolute;
-            width: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .timeline-item {
-            width: 50%;
-            padding: 20px 40px;
-            box-sizing: border-box;
-            position: relative;
-            opacity: 0;
-        }
-
-        /* AOS 结合的动画需在此处处理 */
-        .timeline-item.aos-animate {
-            opacity: 1;
-        }
-
-        .timeline-item.left {
-            left: 0;
-            text-align: right;
-        }
-
-        .timeline-item.right {
-            left: 50%;
-            text-align: left;
-        }
-
-        .timeline-item::after {
-            /* 时间轴圆点 */
-            content: '';
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: var(--bg-color);
-            border: 2px solid var(--accent-color);
-            border-radius: 50%;
-            top: 25px;
-            z-index: 10;
-        }
-
-        .timeline-item.left::after {
-            right: -8px;
-        }
-
-        .timeline-item.right::after {
-            left: -8px;
-        }
-
-        .tl-date {
-            font-size: 14px;
-            color: var(--accent-color);
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .tl-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #fff;
-            margin: 0 0 8px 0;
-        }
-
-        .tl-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 300;
-            margin: 0;
-            line-height: 1.5;
-        }
-
-        /* --- Footer --- */
-        footer {
-            background: #000;
-            padding: 60px 22px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--text-secondary);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        /* --- 响应式 --- */
         @media (max-width: 768px) {
-            #scene {
-                width: 100%;
-                height: 200px;
-            }
-
-            .hero-title-static {
-                font-size: 70px;
-            }
-
-            .section-title {
-                font-size: 36px;
-            }
-
-            .section-subtitle {
-                font-size: 18px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .timeline-container::after {
-                left: 30px;
-            }
-
-            .timeline-item {
-                width: 100%;
-                padding-left: 70px;
-                padding-right: 20px;
-                text-align: left !important;
-            }
-
-            .timeline-item.right {
-                left: 0;
-            }
-
-            .timeline-item::after {
-                left: 22px !important;
-                top: 25px;
-            }
+            .grid-3 { grid-template-columns: 1fr; }
+            .hero-title { font-size: 80px; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="cursor-glow" id="cursor-glow"></div>
+    <div id="canvas-container"></div>
 
-    <nav class="nav">
-        <div class="nav-content">
-            <a href="#" class="nav-logo">DI.</a>
-            <div class="nav-links">
-                <a href="#skills">技能</a>
-                <a href="#projects">项目</a>
-                <a href="#timeline">经历</a>
-            </div>
-        </div>
+    <nav>
+        <a href="#work">PROJECTS</a>
+        <a href="#philosophy">PHILOSOPHY</a>
+        <a href="#contact">CONTACT</a>
     </nav>
 
-    <section id="hero">
-        <div class="hero-content">
-            <div id="scene">
-                <h1 class="hero-title-static">迪</h1>
-            </div>
-            <p class="hero-subtitle">创造代码，设计未来。</p> <a href="#projects" class="btn">探索我的作品</a>
-        </div>
-    </section>
-
-    <section id="skills">
-        <div class="glow-bg"
-            style="width: 500px; height: 500px; background: var(--purple-glow); top: -100px; right: -100px;"></div>
-
-        <h2 class="section-title" data-aos="fade-up">硬核实力</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">核心工具栈与熟练度</p>
-
-        <div class="skills-grid">
-            <div class="skill-item" data-aos="zoom-in" data-aos-delay="200">
-                <div class="skill-icon-box">
-                    <svg class="progress-ring" width="120" height="120">
-                        <circle class="progress-ring__circle" stroke-width="4" fill="transparent" r="50" cx="60"
-                            cy="60" />
-                    </svg>
-                    <span style="color: #61DAFB;">React</span>
-                </div>
-                <p class="skill-name">Web 架构 / 精通</p>
-            </div>
-            <div class="skill-item" data-aos="zoom-in" data-aos-delay="300">
-                <div class="skill-icon-box">
-                    <svg class="progress-ring" width="120" height="120">
-                        <circle class="progress-ring__circle" stroke-width="4" stroke="#3178C6" fill="transparent"
-                            r="50" cx="60" cy="60" style="stroke-dashoffset: 60;" />
-                    </svg>
-                    <span style="color: #3178C6;">TS</span>
-                </div>
-                <p class="skill-name">TypeScript / 高级</p>
-            </div>
-            <div class="skill-item" data-aos="zoom-in" data-aos-delay="400">
-                <div class="skill-icon-box">
-                    <svg class="progress-ring" width="120" height="120">
-                        <circle class="progress-ring__circle" stroke-width="4" stroke="#43853d" fill="transparent"
-                            r="50" cx="60" cy="60" style="stroke-dashoffset: 80;" />
-                    </svg>
-                    <span style="color: #fff; font-size: 18px">Node.js</span>
-                </div>
-                <p class="skill-name">后端服务 / 熟练</p>
-            </div>
-            <div class="skill-item" data-aos="zoom-in" data-aos-delay="500">
-                <div class="skill-icon-box">
-                    <svg class="progress-ring" width="120" height="120">
-                        <circle class="progress-ring__circle" stroke-width="4" stroke="#F05032" fill="transparent"
-                            r="50" cx="60" cy="60" style="stroke-dashoffset: 40;" />
-                    </svg>
-                    <span style="color: #F05032;">Git</span>
-                </div>
-                <p class="skill-name">版本控制 / 精通</p>
+    <section>
+        <div data-aos="fade-up" data-aos-duration="2000">
+            <h1 class="hero-title">DI.</h1>
+            <div style="text-align: center;">
+                <p class="hero-tagline">Digital Craftsman & Engineer</p>
             </div>
         </div>
     </section>
 
-    <section id="projects">
-        <div class="glow-bg"
-            style="width: 600px; height: 600px; background: var(--blue-glow); bottom: -100px; left: -200px;"></div>
-
-        <h2 class="section-title" data-aos="fade-up">实践结晶</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">将想法转化为代码的记录</p>
-
-        <div class="project-grid">
-            <div class="card" data-aos="fade-up" data-aos-delay="200">
-                <div>
-                    <span class="card-cat">Product Design / AI</span>
-                    <h3 class="card-title">MindSprout 思绪火花</h3>
-                    <p class="card-desc">基于 Next.js 和 OpenAI 的智能笔记助手，不仅能记录，更能自动化整理、联想你的知识碎片。</p>
+    <section id="philosophy">
+        <div class="content-card" data-aos="fade-up">
+            <span class="tag">01. Philosophy</span>
+            <h2>少即是多，但必须精准。</h2>
+            <p>
+                我不仅仅是编写代码，我是在构建一种秩序。
+                在每一个像素、每一行逻辑之间，寻找功能与美学的平衡点。
+                我认为一个好的产品应该像空气一样：在需要时无处不在，在不需要时完全隐形。
+            </p>
+            
+            <div class="grid-3">
+                <div class="mini-card">
+                    <h4>极致性能</h4>
+                    <p>追求极致的响应速度，每一毫秒的延迟都是对用户的不尊重。</p>
                 </div>
-                <a href="#" class="cta-link" style="color: var(--accent-color);">Live Demo →</a>
-            </div>
-
-            <div class="card" data-aos="fade-up" data-aos-delay="300">
-                <div>
-                    <span class="card-cat">Dev Tools</span>
-                    <h3 class="card-title">PixelPerfect CLI</h3>
-                    <p class="card-desc">一个命令行工具，用于自动检查 React 组件实现与设计稿的像素级差异，提升 UI 还原度。</p>
+                <div class="mini-card">
+                    <h4>交互美学</h4>
+                    <p>动画不仅仅是装饰，它是引导用户心流的路径。</p>
                 </div>
-                <a href="#" class="cta-link" style="color: var(--accent-color);">View Repo →</a>
+                <div class="mini-card">
+                    <h4>逻辑严谨</h4>
+                    <p>优雅的代码架构是支撑炫酷视觉的唯一基石。</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <section id="timeline">
-        <h2 class="section-title" data-aos="fade-up">足迹</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">那些难忘的时间节点</p>
-
-        <div class="timeline-container">
-            <div class="timeline-item left" data-aos="fade-right">
-                <span class="tl-date">2023.09 - 至今</span>
-                <h4 class="tl-title">高级前端工程师 @ 某科技公司</h4>
-                <p class="tl-desc">负责核心产品核心模块的开发与性能优化，推动 TypeScript 化及单元测试落地。</p>
+    <section id="work">
+        <div style="width: 100%; max-width: 1100px;">
+            <div class="reveal-text">
+                <h2 style="font-size: 80px; margin-bottom: 60px;">SELECTED<br>WORKS.</h2>
             </div>
-            <div class="timeline-item right" data-aos="fade-left">
-                <span class="tl-date">2021.06</span>
-                <h4 class="tl-title">项目启动：开源 UI 库</h4>
-                <p class="tl-desc">在 GitHub 发布了第一个个人开源项目，并在 ProductHunt 获得当日 Star 前十。</p>
-            </div>
-            <div class="timeline-item left" data-aos="fade-right">
-                <span class="tl-date">2020.07</span>
-                <h4 class="tl-title">大学毕业</h4>
-                <p class="tl-desc">获得计算机科学与技术学士学位，正式开启职业生涯。</p>
+            
+            <div class="grid-3" style="grid-template-columns: repeat(2, 1fr); gap: 40px;">
+                <div class="content-card" style="padding: 40px;" data-aos="zoom-in-up">
+                    <span class="tag">Web Architecture</span>
+                    <h3>Neptune UI</h3>
+                    <p style="font-size: 16px;">一套为高性能数据平台设计的底层组件系统，采用原子化设计思维。</p>
+                </div>
+                <div class="content-card" style="padding: 40px; margin-top: 60px;" data-aos="zoom-in-up" data-aos-delay="200">
+                    <span class="tag">AI Integration</span>
+                    <h3>Aether Engine</h3>
+                    <p style="font-size: 16px;">自适应光流算法引擎，为网页端提供电影级的视觉转场体验。</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <footer>
-        <p>&copy; 2023 DI. Stay Hungry, Stay Foolish.</p>
+    <section id="contact">
+        <div data-aos="fade-up">
+            <p class="tag" style="text-align: center;">WANT TO COLLABORATE?</p>
+            <div class="contact-text">一起创造一些<br><span style="color: var(--apple-blue)">不寻常</span>的东西。</div>
+            <div style="text-align: center; margin-top: 50px;">
+                <a class="email-btn">di@studio.com</a>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding: 100px 0; text-align: center; color: #424245; font-size: 12px; letter-spacing: 1px;">
+        DESIGNED & CODED BY DI &copy; 2026 / ALL RIGHTS RESERVED
     </footer>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
     <script>
-        // 1. 初始化 AOS
-        AOS.init({ duration: 1200, easing: 'ease-out-cubic', once: true, offset: 100 });
+        AOS.init({ duration: 1500, once: false });
 
-        // 2. 鼠标跟随微光
-        const glow = document.getElementById('cursor-glow');
-        window.addEventListener('mousemove', e => {
-            glow.style.opacity = '1';
-            glow.style.left = e.clientX + 'px';
-            glow.style.top = e.clientY + window.scrollY + 'px';
+        // --- 真正的“高级感”背景：流体Mesh Gradient ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const geometry = new THREE.PlaneGeometry(20, 20, 50, 50);
+        const material = new THREE.MeshBasicMaterial({ 
+            color: 0x0071e3, 
+            wireframe: false,
+            transparent: true,
+            opacity: 0.5
         });
-        window.addEventListener('mouseout', () => glow.style.opacity = '0');
 
-        // 3. Three.js 粒子文字 "迪" (核心炫酷代码)
-        // 注意：这部分比较高级，如果加载慢，兜底的CSS静态文字也会显示。
-        (function () {
-            const container = document.getElementById('scene');
-            if (!container) return;
+        // 顶点着色器模拟流体
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+        camera.position.z = 5;
 
-            // 移除静态文字
-            const staticTitle = container.querySelector('.hero-title-static');
-
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 1, 1000);
-            camera.position.z = 100;
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
-            container.appendChild(renderer.domElement);
-
-            // 用 Canvas 绘制 "迪" 字作为纹理源
-            const textCanvas = document.createElement('canvas');
-            const tCtx = textCanvas.getContext('2d');
-            textCanvas.width = 300; textCanvas.height = 300;
-            tCtx.fillStyle = 'white';
-            tCtx.font = '700 200px "Noto Sans SC"';
-            tCtx.textAlign = 'center'; tCtx.textBaseline = 'middle';
-            tCtx.fillText('迪', 150, 150); // 修改这里: 这里决定了粒子组成的字
-
-            // 获取文字像素数据，转化为粒子坐标
-            const imgData = tCtx.getImageData(0, 0, 300, 300).data;
-            const geometry = new THREE.BufferGeometry();
-            const positions = [];
-            const colors = [];
-            const colorA = new THREE.Color(0xffffff); // 纯白
-            const colorB = new THREE.Color(0x2997ff); // Apple蓝
-
-            for (let y = 0; y < 300; y += 3) { // 步长决定粒子密度
-                for (let x = 0; x < 300; x += 3) {
-                    const alpha = imgData[((y * 300) + x) * 4 + 3];
-                    if (alpha > 128) {
-                        positions.push(x - 150, (y - 150) * -1, 0); // 居中坐标
-
-                        // 混合颜色，制造渐变感
-                        const mixedColor = colorA.clone().lerp(colorB, x / 300);
-                        colors.push(mixedColor.r, mixedColor.g, mixedColor.b);
-                    }
-                }
-            }
-
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-            const material = new THREE.PointsMaterial({ size: 1.5, vertexColors: true, transparent: true, opacity: 0.8 });
-            const points = new THREE.Points(geometry, material);
-            scene.add(points);
-
-            // 成功加载粒子后，移除静态文字
-            if (staticTitle) staticTitle.remove();
-
-            // 鼠标交互变量
-            let mouseX = 0, mouseY = 0;
-            window.addEventListener('mousemove', (e) => {
-                // 标准化鼠标坐标 (-1 to 1)
-                const rect = container.getBoundingClientRect();
-                mouseX = ((e.clientX - rect.left) / container.clientWidth) * 2 - 1;
-                mouseY = -((e.clientY - rect.top) / container.clientHeight) * 2 + 1;
+        // 增加几个彩色光源球在背后晃动
+        const colors = [0x0071e3, 0x5e5ce6, 0xff375f];
+        const spheres = [];
+        colors.forEach(c => {
+            const g = new THREE.SphereGeometry(2, 32, 32);
+            const m = new THREE.MeshBasicMaterial({ color: c });
+            const s = new THREE.Mesh(g, m);
+            scene.add(s);
+            spheres.push({
+                mesh: s,
+                t: Math.random() * 10,
+                v: 0.01 + Math.random() * 0.02
             });
+        });
 
-            function animate() {
-                requestAnimationFrame(animate);
-
-                // 粒子随鼠标轻微旋转交互
-                points.rotation.y += (mouseX * 0.1 - points.rotation.y) * 0.05;
-                points.rotation.x += (mouseY * 0.1 - points.rotation.x) * 0.05;
-
-                renderer.render(scene, camera);
-            }
-            animate();
-
-            // 响应式窗口
-            window.addEventListener('resize', () => {
-                camera.aspect = container.clientWidth / container.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(container.clientWidth, container.clientHeight);
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = Date.now() * 0.001;
+            
+            spheres.forEach((s, i) => {
+                s.t += s.v;
+                s.mesh.position.x = Math.cos(s.t + i) * 3;
+                s.mesh.position.y = Math.sin(s.t * 1.2 + i) * 2;
+                s.mesh.position.z = Math.sin(s.t) * 2 - 5;
             });
-        })();
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
-
 </html>
